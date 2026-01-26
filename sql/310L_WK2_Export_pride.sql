@@ -57,11 +57,11 @@ CREATE TABLE order_items (
 -- ----------------------------
 -- Sample Products
 -- ----------------------------
-INSERT INTO products (name, description, price, image) VALUES
-('Gaming Mouse', 'High precision wireless gaming mouse', 49.99, 'mouse.jpg'),
-('Mechanical Keyboard', 'RGB mechanical keyboard with blue switches', 89.99, 'keyboard.jpg'),
-('Gaming Headset', 'Surround sound headset with noise cancellation', 79.99, 'headset.jpg'),
-('Mouse Pad', 'Large extended gaming mouse pad', 19.99, 'mousepad.jpg');
+INSERT INTO products (name, description, price) VALUES
+('Gaming Mouse', 'High precision wireless gaming mouse', 49.99),
+('Mechanical Keyboard', 'RGB mechanical keyboard with blue switches', 89.99),
+('Gaming Headset', 'Surround sound headset with noise cancellation', 79.99),
+('Mouse Pad', 'Large extended gaming mouse pad', 19.99),
 ('Gaming Chair', 'High back ergonomic gaming chair with lumbar support.', 229.99),
 ('USB Gaming Controller', 'Wired USB controller compatible with PC gaming.', 39.99),
 ('27 Inch Gaming Monitor', 'Full HD 144Hz gaming monitor.', 249.99),
@@ -72,7 +72,6 @@ INSERT INTO products (name, description, price, image) VALUES
 ('USB Hub', '4 port USB 3.0 hub.', 24.99),
 ('Laptop Cooling Pad', 'Dual fan cooling pad for laptops.', 34.99),
 ('Bluetooth Headphones', 'Over ear wireless headphones.', 89.99),
-
 ('Desk Microphone', 'USB condenser microphone for streaming.', 79.99),
 ('Gaming Desk', 'Large gaming desk with cable management.', 199.99),
 ('Surge Protector', '8 outlet surge protected power strip.', 29.99),
@@ -83,7 +82,6 @@ INSERT INTO products (name, description, price, image) VALUES
 ('USB Flash Drive', '128GB USB 3.1 flash drive.', 19.99),
 ('Mouse Bungee', 'Desk mounted cable holder for mouse.', 14.99),
 ('Monitor Stand', 'Adjustable monitor riser.', 39.99),
-
 ('Dual Monitor Mount', 'Desk mount for two monitors.', 89.99),
 ('RGB Keyboard Wrist Rest', 'Soft padded wrist support.', 24.99),
 ('Gaming Glasses', 'Blue light blocking glasses.', 19.99),
@@ -94,7 +92,6 @@ INSERT INTO products (name, description, price, image) VALUES
 ('USB-C Dock', 'Multi port laptop dock.', 119.99),
 ('Micro SD Card', '256GB high speed micro SD.', 39.99),
 ('VR Headset', 'Virtual reality gaming headset.', 399.99),
-
 ('Gaming Backpack', 'Laptop backpack with USB charging.', 69.99),
 ('PC Speakers', 'Stereo speakers with subwoofer.', 79.99),
 ('Streaming Ring Light', 'Adjustable LED light.', 34.99),
@@ -105,7 +102,6 @@ INSERT INTO products (name, description, price, image) VALUES
 ('PC Tool Kit', 'PC building tool set.', 29.99),
 ('Cable Sleeves', 'Braided cable management kit.', 24.99),
 ('Gaming Floor Mat', 'Chair floor protection mat.', 39.99),
-
 ('SSD 1TB', 'High speed solid state drive.', 99.99),
 ('SSD 2TB', 'High capacity solid state drive.', 189.99),
 ('Power Supply 750W', 'Fully modular power supply.', 129.99),
@@ -116,7 +112,6 @@ INSERT INTO products (name, description, price, image) VALUES
 ('PC RGB Controller', 'Lighting controller hub.', 39.99),
 ('Wi-Fi Adapter', 'USB wireless network adapter.', 29.99),
 ('Keyboard Cleaning Kit', 'Cleaning tools for electronics.', 14.99),
-
 ('Screen Cleaning Spray', 'Safe monitor cleaning solution.', 9.99),
 ('Gaming Gloves', 'Fingerless gaming gloves.', 19.99),
 ('Desk Cable Tray', 'Under desk cable management.', 34.99),
@@ -127,7 +122,6 @@ INSERT INTO products (name, description, price, image) VALUES
 ('Streaming Boom Arm', 'Microphone desk mount.', 49.99),
 ('Gaming Hoodie', 'Comfortable gaming hoodie.', 59.99),
 ('PC Dust Filter', 'Magnetic dust filters.', 14.99),
-
 ('Thermal Monitoring Sensor', 'Internal PC temperature probe.', 19.99),
 ('External Blu-ray Drive', 'USB Blu-ray reader.', 99.99),
 ('Gaming Mouse Skates', 'Replacement PTFE skates.', 9.99),

@@ -1,88 +1,3 @@
-<?php
-session_start();
-require_once "db.php";
-require_once "products.php";
-
-$sessionId = session_id();
-$products = GetProducts();
-
-// Get quantity for one product from DB
-function GetQtyInCart($productId)
-{
-    global $pdo, $sessionId;
-
-    $stmt = $pdo->prepare("SELECT quantity FROM cart_items WHERE session_id = ? AND product_id = ?");
-    $stmt->execute(array($sessionId, $productId));
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if ($row) {
-        return intval($row["quantity"]);
-    }
-    return 0;
-}
-
-// Upsert helper (insert or update)
-function SetCartQty($productId, $qty)
-{
-    global $pdo, $sessionId;
-
-    if ($qty < 0) {
-        $qty = 0;
-    }
-
-    // Check if row exists
-    $stmt = $pdo->prepare("SELECT cart_id FROM cart_items WHERE session_id = ? AND product_id = ?");
-    $stmt->execute(array($sessionId, $productId));
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if ($qty === 0) {
-        // DELETE
-        $del = $pdo->prepare("DELETE FROM cart_items WHERE session_id = ? AND product_id = ?");
-        $del->execute(array($sessionId, $productId));
-        return;
-    }
-
-    if ($row) {
-        // UPDATE
-        $upd = $pdo->prepare("UPDATE cart_items SET quantity = ? WHERE session_id = ? AND product_id = ?");
-        $upd->execute(array($qty, $sessionId, $productId));
-    } else {
-        // INSERT
-        $ins = $pdo->prepare("INSERT INTO cart_items (product_id, quantity, session_id) VALUES (?, ?, ?)");
-        $ins->execute(array($productId, $qty, $sessionId));
-    }
-}
-
-// Handle POST actions
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $action = isset($_POST["action"]) ? $_POST["action"] : "";
-    $productId = isset($_POST["product_id"]) ? intval($_POST["product_id"]) : 0;
-
-    if ($productId > 0 && isset($products[$productId])) {
-        $currentQty = GetQtyInCart($productId);
-
-        if ($action === "add" || $action === "inc") {
-            $currentQty = $currentQty + 1;
-        } elseif ($action === "dec") {
-            $currentQty = $currentQty - 1;
-        } elseif ($action === "remove") {
-            $currentQty = 0;
-        } elseif ($action === "set") {
-            $newQty = isset($_POST["qty"]) ? intval($_POST["qty"]) : 0;
-            $currentQty = $newQty;
-        }
-
-        // limit to 0 or more + write to DB
-        if ($currentQty < 0) {
-            $currentQty = 0;
-        }
-        SetCartQty($productId, $currentQty);
-    }
-
-    header("Location: catalog.php");
-    exit;
-}
-?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -331,8 +246,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <h1>Online Sales Store</h1>
         </div>
         <div class="nav">
-            <a class="pill" href="catalog.php"><strong>Catalog</strong></a>
-            <a class="pill" href="cart.php">Go to Cart →</a>
+            <a class="pill" href="index.php?page=catalog"><strong>Catalog</strong></a>
+            <a class="pill" href="index.php?page=cart">Go to Cart →</a>
         </div>
     </div>
 </div>
@@ -362,7 +277,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 </thead>
                 <tbody>
                 <?php foreach ($products as $p): ?>
-                    <?php $qty = GetQtyInCart($p["id"]); ?>
+                    <?php $qty = $cartQtys[$p["id"]] ?? 0; ?>
                     <tr>
                         <td><?php echo $p["id"]; ?></td>
                         <td><strong><?php echo htmlspecialchars($p["name"]); ?></strong></td>
@@ -370,31 +285,31 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <td class="money">$<?php echo number_format($p["cost"], 2); ?></td>
                         <td><span class="qty-badge"><?php echo $qty; ?></span></td>
                         <td class="actions">
-                            <form method="post">
+                            <form method="post" action="index.php?page=catalog">
                                 <input type="hidden" name="product_id" value="<?php echo $p["id"]; ?>" />
                                 <input type="hidden" name="action" value="add" />
                                 <button class="btn-add" type="submit">Add</button>
                             </form>
 
-                            <form method="post">
+                            <form method="post" action="index.php?page=catalog">
                                 <input type="hidden" name="product_id" value="<?php echo $p["id"]; ?>" />
                                 <input type="hidden" name="action" value="dec" />
                                 <button class="btn-small" type="submit">−</button>
                             </form>
 
-                            <form method="post">
+                            <form method="post" action="index.php?page=catalog">
                                 <input type="hidden" name="product_id" value="<?php echo $p["id"]; ?>" />
                                 <input type="hidden" name="action" value="inc" />
                                 <button class="btn-small" type="submit">+</button>
                             </form>
 
-                            <form method="post">
+                            <form method="post" action="index.php?page=catalog">
                                 <input type="hidden" name="product_id" value="<?php echo $p["id"]; ?>" />
                                 <input type="hidden" name="action" value="remove" />
                                 <button class="btn-remove" type="submit">Remove</button>
                             </form>
 
-                            <form method="post" class="setqty">
+                            <form method="post" action="index.php?page=catalog" class="setqty">
                                 <input type="hidden" name="product_id" value="<?php echo $p["id"]; ?>" />
                                 <input type="hidden" name="action" value="set" />
                                 <span style="color:var(--muted); font-size:12px; font-weight:700;">Set Qty</span>

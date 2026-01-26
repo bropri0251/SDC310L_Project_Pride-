@@ -1,58 +1,3 @@
-<?php
-session_start();
-require_once "db.php";
-
-$sessionId = session_id();
-
-// Always initialize variables to avoid undefined errors
-$rows = array();
-$itemsCount = 0;
-$preTaxTotal = 0.0;
-$tax = 0.0;
-$shipping = 0.0;
-$orderTotal = 0.0;
-
-// Checkout: clear cart and return to catalog
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $action = isset($_POST["action"]) ? $_POST["action"] : "";
-
-    if ($action === "checkout") {
-        $del = $pdo->prepare("DELETE FROM cart_items WHERE session_id = ?");
-        $del->execute(array($sessionId));
-
-        header("Location: catalog.php");
-        exit;
-    }
-}
-
-// Load cart items from database for this session
-$stmt = $pdo->prepare("
-    SELECT c.product_id, c.quantity, p.name, p.price
-    FROM cart_items c
-    INNER JOIN products p ON c.product_id = p.product_id
-    WHERE c.session_id = ?
-    ORDER BY c.product_id
-");
-$stmt->execute(array($sessionId));
-$tmp = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-if (is_array($tmp)) {
-    $rows = $tmp;
-}
-
-// Calculate totals
-foreach ($rows as $r) {
-    $qty = intval($r["quantity"]);
-    $price = floatval($r["price"]);
-
-    $itemsCount += $qty;
-    $preTaxTotal += ($price * $qty);
-}
-
-$tax = $preTaxTotal * 0.05;
-$shipping = $preTaxTotal * 0.10;
-$orderTotal = $preTaxTotal + $tax + $shipping;
-?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -302,8 +247,8 @@ $orderTotal = $preTaxTotal + $tax + $shipping;
             <div class="sub">Cart • Week 3 Database Support</div>
         </div>
         <div class="nav">
-            <a class="pill" href="catalog.php">← Continue Shopping</a>
-            <a class="pill" href="cart.php"><strong>Cart</strong></a>
+            <a class="pill" href="index.php?page=catalog">← Continue Shopping</a>
+            <a class="pill" href="index.php?page=cart"><strong>Cart</strong></a>
         </div>
     </div>
 </div>
@@ -320,11 +265,11 @@ $orderTotal = $preTaxTotal + $tax + $shipping;
         </div>
 
         <div class="summary-pill">
-            Total Items: <?php echo $itemsCount; ?>
+            Total Items: <?php echo $totals['itemsCount']; ?>
         </div>
     </div>
 
-    <?php if (count($rows) === 0): ?>
+    <?php if (count($cartItems) === 0): ?>
         <div class="empty">
             <h3>Cart is empty</h3>
             <p>Add a few items from the catalog to see order totals and checkout.</p>
@@ -345,7 +290,7 @@ $orderTotal = $preTaxTotal + $tax + $shipping;
                             </tr>
                         </thead>
                         <tbody>
-                        <?php foreach ($rows as $r): ?>
+                        <?php foreach ($cartItems as $r): ?>
                             <?php
                                 $qty = intval($r["quantity"]);
                                 $price = floatval($r["price"]);
@@ -369,30 +314,30 @@ $orderTotal = $preTaxTotal + $tax + $shipping;
 
                 <div class="row">
                     <span class="muted">Total of items ordered</span>
-                    <strong><?php echo $itemsCount; ?></strong>
+                    <strong><?php echo $totals['itemsCount']; ?></strong>
                 </div>
 
                 <div class="row">
                     <span class="muted">Pre-tax total</span>
-                    <strong>$<?php echo number_format($preTaxTotal, 2); ?></strong>
+                    <strong>$<?php echo number_format($totals['preTaxTotal'], 2); ?></strong>
                 </div>
 
                 <div class="row">
                     <span class="muted">Tax (5%)</span>
-                    <strong>$<?php echo number_format($tax, 2); ?></strong>
+                    <strong>$<?php echo number_format($totals['tax'], 2); ?></strong>
                 </div>
 
                 <div class="row">
                     <span class="muted">Shipping & Handling (10%)</span>
-                    <strong>$<?php echo number_format($shipping, 2); ?></strong>
+                    <strong>$<?php echo number_format($totals['shipping'], 2); ?></strong>
                 </div>
 
                 <div class="row">
                     <span class="muted">Order Total</span>
-                    <strong>$<?php echo number_format($orderTotal, 2); ?></strong>
+                    <strong>$<?php echo number_format($totals['orderTotal'], 2); ?></strong>
                 </div>
 
-                <form method="post">
+                <form method="post" action="index.php?page=cart">
                     <input type="hidden" name="action" value="checkout" />
                     <button class="btn-checkout" type="submit">Check Out (Clear Cart + Return to Catalog)</button>
                 </form>
